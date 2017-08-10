@@ -1,0 +1,6 @@
+# Downloaded CSV Files #
+*.csv
+
+
+# Compiled
+*.pyc
