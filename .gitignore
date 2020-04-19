@@ -6,7 +6,7 @@
 */__pycache__
 
 # modules
-*/.node_modules
+*node_modules
 
 # text editor/IDE
 .vscode/*
