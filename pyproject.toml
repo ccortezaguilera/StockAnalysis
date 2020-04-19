@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "StockAnalysis"
+version = "0.1.0"
+description = ""
+authors = ["ccortezaguilera <10718803+ccortezaguilera@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+quart = "^0.11.5"
+black = "^19.10b0"
+aiohttp = "^3.6.2"
+asyncio = "^3.4.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
