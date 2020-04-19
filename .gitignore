@@ -1,6 +1,20 @@
 # Downloaded CSV Files #
 *.csv
 
-
 # Compiled
 *.pyc
+*/__pycache__
+
+# modules
+*/.node_modules
+
+# text editor/IDE
+.vscode/*
+*.ini
+.idea/*
+
+# virtual environments
+venv/*
+
+# egg data
+*.egg-info
