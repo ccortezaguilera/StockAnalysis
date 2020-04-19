@@ -9,9 +9,12 @@ Holds a collection of stocks can be considered similar to a portfolio
 import datetime
 import os
 import time
+import logging
 from datetime import timedelta
 
-from stock_day import StockDay
+from .stock_day import StockDay
+
+logger = logging.getLogger(__name__)
 
 CSV = ".csv"
 TIMEZONE = "TIMEZONE"
@@ -23,7 +26,7 @@ class StockCollection(object):
         self.stocks = {}
 
     def __datetime_to_str(self, date):
-        return str(date.strftime('%m/%d/%Y'))
+        return str(date.strftime("%m/%d/%Y"))
 
     def __safe_open_w(self, path, file):
         """
@@ -32,17 +35,20 @@ class StockCollection(object):
         :return: 
         """
         import os.path
+
         if os.path.exists(path):
-            print(path + ' directory exists')
+            logger.info(path + " directory exists")
             pass
         else:
-            print('making ' + path + ' directory')
+            logger.info("making " + path + " directory")
             try:
                 os.makedirs(path)
             except OSError as e:
-                print(e.errno, e.winerror)
+                logger.error(e.errno, e.winerror)
                 raise
-        return open(os.path.join(path, file), 'wb+')  # todo check that it's the right condition for opening
+        return open(
+            os.path.join(path, file), "wb+"
+        )  # todo check that it's the right condition for opening
 
     def __extract_day_data(self, day_data, start=0, data={}):
         """
@@ -51,27 +57,41 @@ class StockCollection(object):
         :param data: the unix time (epoch time) the function has already extracted and has kept for memory
         :return: 
         """
-        if (day_data[0][0] == 'a'):
+        if day_data[0][0] == "a":
             # getting the month day and year -> mm/dd/year
             day = datetime.datetime.fromtimestamp(int(day_data[0][1:]))
             day_str = self.__datetime_to_str(day)
-            data[day_str] = StockDay(day, float(day_data[1]), float(day_data[2]), float(day_data[3]),
-                                     float(day_data[4]), int(day_data[5]))
+            data[day_str] = StockDay(
+                day,
+                float(day_data[1]),
+                float(day_data[2]),
+                float(day_data[3]),
+                float(day_data[4]),
+                int(day_data[5]),
+            )
             return day
         else:
             new_day = start + timedelta(days=int(day_data[0]))
             new_day_str = self.__datetime_to_str(new_day)
-            data[new_day_str] = StockDay(new_day, float(day_data[1]), float(day_data[2]), float(day_data[3]),
-                                         float(day_data[4]), int(day_data[5]))
+            data[new_day_str] = StockDay(
+                new_day,
+                float(day_data[1]),
+                float(day_data[2]),
+                float(day_data[3]),
+                float(day_data[4]),
+                int(day_data[5]),
+            )
             return start
 
     def process_data(self, data, symbol):
         row_count = len(data)
-        print(row_count)
+        logger.info(row_count)
         start = 0
-        collection = {}  # stock_history.StockHistory(symbol, os.join(STOCKS_DIR,symbol+CSV))
+        collection = (
+            {}
+        )  # stock_history.StockHistory(symbol, os.join(STOCKS_DIR,symbol+CSV))
         for line in data:
-            stock_day_data = line.split(',')
+            stock_day_data = line.split(",")
             if stock_day_data[0][0:8] != TIMEZONE:
                 start = self.__extract_day_data(stock_day_data, start, collection)
         return collection
@@ -87,24 +107,33 @@ class StockCollection(object):
         p - Period (number d | number Y) d: days ; Y: years
         f - data you want (d: timestamp/interval, c: close, v: volume, o: opening, h: high, l: low)
         """
-        todays_date = int(time.mktime(time.strptime(time.time(), '%Y-%m-%d %H:%M:%S'))) - time.timezone
+        todays_date = (
+            int(time.mktime(time.strptime(time.time(), "%Y-%m-%d %H:%M:%S")))
+            - time.timezone
+        )
         from urllib.request import urlopen
 
         # todo remove this symbol
-        symbol = 'AAPL'
+        symbol = "AAPL"
         #################
 
-        url = 'https://www.google.com/finance/getprices?q=' + symbol + '&x=' + 'NASDAQ' + '&i=86400&p=40Y&f=d,c,h,l,o,v'
+        url = (
+            "https://www.google.com/finance/getprices?q="
+            + symbol
+            + "&x="
+            + "NASDAQ"
+            + "&i=86400&p=40Y&f=d,c,h,l,o,v"
+        )
         with urlopen(url) as response:
             body = response.read()
-            data = body.decode('utf-8')
-            body_str = body.decode('utf-8').split('\n')
-            collection = self.process_data(body_str[7:len(body_str) - 1], symbol)
+            data = body.decode("utf-8")
+            body_str = body.decode("utf-8").split("\n")
+            collection = self.process_data(body_str[7 : len(body_str) - 1], symbol)
             for key in collection.keys():
-                print(collection[key])
+                logger.info(collection[key])
                 # filename = symbol + '.csv'
                 # with __safe_open_w('stock', filename) as f:
-                #    print('writing ' + f.name)
+                #    logger.info('writing ' + f.name)
                 #    for key in collection.keys():
                 #        f.write(collection[key]+'\n')
                 #    f.close()
@@ -114,11 +143,12 @@ class StockCollection(object):
                 # + symbol
                 # + '?period1=-5364633600000&period2=' + todays_date +'&interval=1&events=history&crumb=4XcUYPDyyJE'
 
-    def download(self, symbol):
+    def download(self, **kwargs):
         """
 
         :param symbol:type string
         """
+        symbol = kwargs.get("symbol")
         self.__download_stock(symbol)
 
     def __download_all(self):
@@ -134,12 +164,12 @@ class StockCollection(object):
 
         :type filename: File
         """
-        symbol = filename.split('.')[0]
+        symbol = filename.split(".")[0]
         stock_path = os.path.join(STOCKS_DIR, filename)
         # todo create stock_history object
         # todo add the stock_history object to the dictionary with the symbol name as key
 
-    def load(self):
+    def load(self, **kwargs):
         """
 
         """
@@ -155,40 +185,49 @@ class StockCollection(object):
         """
         return self.stocks.keys()
 
-    def refresh(self):
+    def refresh(self, **kwargs):
         self.__download_all()
 
-    def max_day_increase(self, symbol):
+    def max_day_increase(self, **kwargs):
+        symbol = kwargs.get("symbol")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.max_day_increase()
 
-    def max_day_percent_increase(self, symbol):
+    def max_day_percent_increase(self, **kwargs):
+        symbol = kwargs.get("symbol")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.max_day_percent_increase()
 
-    def max_day_decrease(self, symbol):
+    def max_day_decrease(self, **kwargs):
+        symbol = kwargs.get("symbol")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.max_day_decrease()
 
-    def max_day_percent_decrease(self, symbol):
+    def max_day_percent_decrease(self, **kwargs):
+        symbol = kwargs.get("symbol")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.max_day_percent_decrease()
 
-    def max_month_increase(self, symbol):
+    def max_month_increase(self, **kwargs):
+        symbol = kwargs.get("symbol")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.max_month_increase()
 
-    def max_year_increase(self, symbol):
+    def max_year_increase(self, **kwargs):
+        symbol = kwargs.get("symbol")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.max_year_increase()
 
-    def what_if(self, symbol, date_invested, amount_invested):
+    def what_if(self, **kwargs):
+        symbol = kwargs.get("symbol")
+        date_invested = kwargs.get("date_invested")
+        amount_invested = kwargs.get("amount_invested")
         symbol = symbol.upper()
         history = self.stocks[symbol]
         history.what_if(date_invested, amount_invested)
@@ -201,7 +240,7 @@ class StockCollection(object):
             list_stocks.append(dict_stocks)
         return list_stocks
 
-    def top3(self):
+    def top3(self, **kwargs):
         self.stocks.keys()
         sym = self.stocks.keys()
         list1 = self.symb(sym)
@@ -210,5 +249,14 @@ class StockCollection(object):
         biggest = list2[-1]
         biggest2 = list2[-2]
         biggest3 = list2[-3]
-        print("Top1 %s: %f Top2 %s: %f Top3 %s: %f" %
-              (dict2[biggest], biggest, dict2[biggest2], biggest2, dict2[biggest3], biggest3))
+        logger.info(
+            "Top1 %s: %f Top2 %s: %f Top3 %s: %f"
+            % (
+                dict2[biggest],
+                biggest,
+                dict2[biggest2],
+                biggest2,
+                dict2[biggest3],
+                biggest3,
+            )
+        )

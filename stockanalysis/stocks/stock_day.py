@@ -31,4 +31,11 @@ class StockDay(object):
         return ((self.open - self.close) / self.open) * 100
 
     def __str__(self):
-        return "%s %f %f %f %f %d" % (str(self.date), self.open, self.high, self.low, self.close, self.volume)
+        return "%s %f %f %f %f %d" % (
+            str(self.date),
+            self.open,
+            self.high,
+            self.low,
+            self.close,
+            self.volume,
+        )

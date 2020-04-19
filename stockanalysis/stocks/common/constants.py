@@ -1,5 +1,5 @@
-#Conversions.py - the different type of conversions that we can do.
 from enum import Enum
+
 class Conversions(Enum):
     WHAT_IF = "what_if"
     MAX_DAY_INCREASE = "max_day_increase"

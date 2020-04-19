@@ -3,7 +3,7 @@
 stock_history.py
 ################
 """
-from stock_day import StockDay
+from .stock_day import StockDay
 
 latest_day = {}
 
@@ -20,16 +20,22 @@ class StockHistory:
         return "%s stock" % self.symbol
 
     def __read_file(self, filename):
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             stock_lines = f.readlines()
             stock_lines = stock_lines[1:]
 
             for line in stock_lines:
                 line = line.strip()
-                values = line.split(',')
+                values = line.split(",")
                 print(values[0], values[1], values[2], values[3])
-                day = StockDay(values[0], float(values[1]), float(values[2]), float(values[3]), float(values[4]),
-                               int(values[5]))
+                day = StockDay(
+                    values[0],
+                    float(values[1]),
+                    float(values[2]),
+                    float(values[3]),
+                    float(values[4]),
+                    int(values[5]),
+                )
                 self.history.append(day)
 
     def max_day_increase(self):
@@ -41,8 +47,10 @@ class StockHistory:
             if diff > max_diff:
                 max_diff = diff
                 max_day = day
-        print("%s: %s | open = %f | close= %f | diff = %f" %
-              (self.symbol, max_day.date, max_day.open, max_day.close, max_diff))
+        print(
+            "%s: %s | open = %f | close= %f | diff = %f"
+            % (self.symbol, max_day.date, max_day.open, max_day.close, max_diff)
+        )
 
     def max_day_decrease(self):
         max_diff = 0.0
@@ -53,8 +61,10 @@ class StockHistory:
             if diff > max_diff:
                 max_diff = diff
                 max_day = day
-        print("%s: %s open = %f close = %f diff = %f" %
-              (self.symbol, max_day.date, max_day.open, max_day.close, max_diff))
+        print(
+            "%s: %s open = %f close = %f diff = %f"
+            % (self.symbol, max_day.date, max_day.open, max_day.close, max_diff)
+        )
 
     def max_day_percent_increase(self):
         max_diff = 0.0
@@ -65,8 +75,10 @@ class StockHistory:
             if diff > max_diff:
                 max_diff = diff
                 max_day = day
-        print("%s: %s open = %f close = %f percent diff = %f" %
-              (self.symbol, max_day.date, max_day.open, max_day.close, max_diff))
+        print(
+            "%s: %s open = %f close = %f percent diff = %f"
+            % (self.symbol, max_day.date, max_day.open, max_day.close, max_diff)
+        )
 
     def max_day_percent_decrease(self):
         max_diff = 0.0
@@ -77,8 +89,10 @@ class StockHistory:
             if diff > max_diff:
                 max_diff = diff
                 max_day = day
-        print("%s: %s open = %f close = %f percent diff = %f" %
-              (self.symbol, max_day.date, max_day.open, max_day.close, max_diff))
+        print(
+            "%s: %s open = %f close = %f percent diff = %f"
+            % (self.symbol, max_day.date, max_day.open, max_day.close, max_diff)
+        )
 
     def get_months(self):
         month_dict = {}
