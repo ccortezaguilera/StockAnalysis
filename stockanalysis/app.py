@@ -1,43 +1,64 @@
-from quart import Quart, render_template, jsonify, request, url_for, redirect, json
+import os
+from http import HTTPStatus
+from quart import render_template, jsonify, request, url_for, redirect, json
+from quart_openapi import Pint, Resource
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
 
-from stocks.utils.conversion_type import get_conversion_type
+# from stocks.utils.conversion_type import get_conversion_type
 
 __author__ = "Carlos Aguilera"
 __version__ = "1.0.0"
 
 from logging.config import dictConfig
+from stocks.stocks import blueprint
 
 dictConfig(
     {
         "version": 1,
         "loggers": {
-            "quart.app": {"level": "INFO",},
-            "quart.serving": {"level": "INFO"},
+            "quart.app": {"level": "DEBUG",},
+            "quart.serving": {"level": "DEBUG"},
+            "stocks.stocks": {"level": "INFO"},
         },
     }
 )
 
-app = Quart(__name__)
+app = Pint(__name__, title="Stock Analysis")
 
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+app.config["STOCKS_FOLDER"] = os.path.join(app.static_folder, "stocks")
+blueprint.stocks_folder = os.path.join(app.static_folder, "stocks")
+
+app.register_blueprint(blueprint)
 
 
-@app.route("/")
-async def main():
-    return await render_template("index.html")
+@app.route("/", methods=["GET", "POST"], provide_automatic_options=False)
+class Root(Resource):
+    async def get(self):
+        return await render_template("index.html")
+
+
+status_expected_schema = app.create_validator(
+    "status", {"type": "object", "properties": {"status": {"type": "string",},},}
+)
 
 
 @app.route("/status")
-async def status():
-    return jsonify({"status": "ok"})
+class Status(Resource):
+    @app.response(
+        HTTPStatus.OK,
+        description="A status of ok is system is up.",
+        validator=status_expected_schema,
+    )
+    async def get(self):
+        return jsonify({"status": "ok"})
 
 
 @app.route("/process", methods=["POST"])
-async def process():
-    # https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=IBM&interval=5min&apikey=demo
-    return 'Processing'
+class Process(Resource):
+    async def post(self):
+        return "Processing"
     # form = await request.form
     # __convtype = form.get("convtype")
     # todo add form validation
@@ -61,20 +82,15 @@ async def process():
 
 
 @app.route("/what_if", methods=["POST"])
-async def what_if(symbol, data_invested, amount_invested, convtype):
-    return "Calculating"
+class WhatIf(Resource):
+    async def post(self):
+        return "Calculating"
 
 
 @app.route("/result", methods=["POST"])
-async def result(convtype):
-    return "result"
-
-
-@app.route("/stocks", methods=["GET"])
-async def stocks():
-    return jsonify(
-        {"stocks": [{"location": "/stocks/appl"}, {"location": "/stocks/sq"}]}
-    )
+class Result(Resource):
+    async def post(self):
+        return "result"
 
 
 @app.errorhandler(Exception)
@@ -87,7 +103,7 @@ async def handle_exception(e):
         response.content_type = "application/json"
         app.logger.error("HTTP Error 500")
         return response
-    app.logger.error("Error 500")
+    app.logger.error(e)
     return await render_template("500_generic.html", e=e)
 
 
