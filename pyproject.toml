@@ -7,13 +7,13 @@ authors = ["ccortezaguilera <10718803+ccortezaguilera@users.noreply.github.com>"
 [tool.poetry.dependencies]
 python = "^3.8"
 quart = "^0.11.5"
-black = "^19.10b0"
 aiohttp = "^3.6.2"
 asyncio = "^3.4.3"
 quart-openapi = "^1.5.3"
 yfinance = "^0.1.54"
 
 [tool.poetry.dev-dependencies]
+black = "^19.10b0"
 pytest = "^5.2"
 
 [build-system]
