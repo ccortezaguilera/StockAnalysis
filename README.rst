@@ -10,11 +10,13 @@ Installation
 ------------
 
 Install ``StockAnalysis`` using ``poetry``:
+
 .. code:: bash
 
     $ poetry install
 
 Install ``StockAnalysis`` using ``pip``:
+
 .. code:: bash
 
     $ pip install -r requirements.txt
