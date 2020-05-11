@@ -6,11 +6,11 @@ StockAnalysis
 Quick Start
 ===========
 
-Install using ``poetry``
+Install using ``poetry``:
 .. code:: bash
     $ poetry install
 
-Install using ``pip``
+Install using ``pip``:
 .. code:: bash
     $ pip install -r requirements.txt
 
