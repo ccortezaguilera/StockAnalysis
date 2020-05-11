@@ -6,15 +6,19 @@ StockAnalysis
 Quick Start
 ===========
 
-Install using ``poetry``:
+Installation
+------------
+
+Install ``StockAnalysis`` using ``poetry``:
 .. code:: bash
+
     $ poetry install
 
-Install using ``pip``:
+Install ``StockAnalysis`` using ``pip``:
 .. code:: bash
+
     $ pip install -r requirements.txt
 
 Requirements
 ------------
-
 * `Python <https://www.python.org>`_ 3.7+
