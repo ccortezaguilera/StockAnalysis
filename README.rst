@@ -21,6 +21,22 @@ Install ``StockAnalysis`` using ``pip``:
 
     $ pip install -r requirements.txt
 
+To Develop
+===========
+
+Install sqlite3
+
+1. Go to https://www.sqlite.org/download.html
+2. Download sqlite-autoconf-*.tar.gz 
+
+.. code:: bash
+
+    $ tar xvfz sqlite-autoconf-*.tar.gz
+    $ cd sqlite-autoconf-*
+    $ ./configure --prefix=/usr/local
+    $ make
+    $ make install
+
 Requirements
 ------------
 * `Python <https://www.python.org>`_ 3.7+
