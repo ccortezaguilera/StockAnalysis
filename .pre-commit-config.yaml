@@ -5,6 +5,8 @@ repos:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: debug-statements
 -   repo: https://github.com/psf/black
     rev: 19.10b0
     hooks:
@@ -15,6 +17,23 @@ repos:
     hooks:
       - id: commitizen
         stages: [commit-msg]
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.4
+    hooks:
+      - id: flake8
+        stages: [commit]
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.6.4
+    hooks:
+      - id: isort
+        stages: [commit]
+-   repo: https://github.com/Lucas-C/pre-commit-hooks-bandit
+    rev: v1.0.3
+    hooks:
+      - id: python-bandit-vulnerability-check
+        args: [-l, --recursive, -x, tests]
+        files: .py$
+        stages: [push]
 default_language_version:
   python: python3.7
 exclude:
