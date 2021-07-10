@@ -7,9 +7,10 @@ Holds a collection of stocks can be considered similar to a portfolio
 """
 # uses epoch time for the date
 import datetime
-import os
-import time
 import logging
+import os
+
+# import time
 from datetime import timedelta
 
 from .stock_day import StockDay
@@ -31,8 +32,8 @@ class StockCollection(object):
     def __safe_open_w(self, path, file):
         """
 
-        :param file: 
-        :return: 
+        :param file:
+        :return:
         """
         import os.path
 
@@ -53,9 +54,10 @@ class StockCollection(object):
     def __extract_day_data(self, day_data, start=0, data={}):
         """
         :param day_data: the data wanted to be extracted
-        :param start: the day currently extracting from 0 to N 
-        :param data: the unix time (epoch time) the function has already extracted and has kept for memory
-        :return: 
+        :param start: the day currently extracting from 0 to N
+        :param data: the unix time (epoch time) the function
+            has already extracted and has kept for memory
+        :return:
         """
         if day_data[0][0] == "a":
             # getting the month day and year -> mm/dd/year
@@ -100,79 +102,56 @@ class StockCollection(object):
 
         """
         :param symbol:
-        
+
         q - symbol
         x - stock exchange symbol https://www.google.com/googlefinance/disclaimer/
         i - Interval size in seconds
         p - Period (number d | number Y) d: days ; Y: years
-        f - data you want (d: timestamp/interval, c: close, v: volume, o: opening, h: high, l: low)
-        """
-        todays_date = (
-            int(time.mktime(time.strptime(time.time(), "%Y-%m-%d %H:%M:%S")))
-            - time.timezone
+        f - data you want (
+            d: timestamp/interval,
+            c: close,
+            v: volume,
+            o: opening,
+            h: high,
+            l: low
         )
-        from urllib.request import urlopen
+        """
+        # todays_date = (
+        #     int(time.mktime(time.strptime(time.time(), "%Y-%m-%d %H:%M:%S")))
+        #     - time.timezone
+        # )
+        # from urllib.request import urlopen
 
         # todo remove this symbol
-        symbol = "AAPL"
+        # symbol = "AAPL"
         #################
-
-        url = (
-            "https://www.google.com/finance/getprices?q="
-            + symbol
-            + "&x="
-            + "NASDAQ"
-            + "&i=86400&p=40Y&f=d,c,h,l,o,v"
-        )
-        with urlopen(url) as response:
-            body = response.read()
-            data = body.decode("utf-8")
-            body_str = body.decode("utf-8").split("\n")
-            collection = self.process_data(body_str[7 : len(body_str) - 1], symbol)
-            for key in collection.keys():
-                logger.info(collection[key])
-                # filename = symbol + '.csv'
-                # with __safe_open_w('stock', filename) as f:
-                #    logger.info('writing ' + f.name)
-                #    for key in collection.keys():
-                #        f.write(collection[key]+'\n')
-                #    f.close()
-                # todo check if today's date works
-                # url = 'http://www.google.com/finance/historical?q=NASDAQ%3A' + symbol + '&output=csv'
-                # url = 'https://query1.finance.yahoo.com/v7/finance/download/' \
-                # + symbol
-                # + '?period1=-5364633600000&period2=' + todays_date +'&interval=1&events=history&crumb=4XcUYPDyyJE'
+        pass
 
     def download(self, **kwargs):
         """
-
         :param symbol:type string
         """
         symbol = kwargs.get("symbol")
         self.__download_stock(symbol)
 
     def __download_all(self):
-        """
-
-        """
         for stock in self.stocks:
             self.__download_stock(stock)
 
     def __load_stock(self, filename):
         # todo make sure the filename is only $STOCK_NAME.csv
         """
-
         :type filename: File
         """
-        symbol = filename.split(".")[0]
-        stock_path = os.path.join(STOCKS_DIR, filename)
+        # symbol = filename.split(".")[0]
+        # stock_path = os.path.join(STOCKS_DIR, filename)
         # todo create stock_history object
-        # todo add the stock_history object to the dictionary with the symbol name as key
+        # todo add the stock_history object to the dictionary
+        # with the symbol name as key
+        pass
 
     def load(self, **kwargs):
-        """
-
-        """
+        """ """
         if os.path.exists(STOCKS_DIR):
             stock_files = os.listdir(STOCKS_DIR)
             for stock in stock_files:

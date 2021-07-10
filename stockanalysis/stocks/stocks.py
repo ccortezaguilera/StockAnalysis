@@ -1,23 +1,26 @@
-import aiofiles
-import datetime
-import json
 import logging
 import os
 import sys
-import yfinance as yf
 from http import HTTPStatus
+
+import aiofiles
+import yfinance as yf
 from quart import jsonify, request, url_for
 from quart_openapi import PintBlueprint, Resource
-from werkzeug.exceptions import BadRequest
 
-from .utils.query_params import (
+from stockanalysis.models.stock import StockDay  # Stock,
+
+from .utils.extract_json_files import extract_json_file, generate_response
+from .utils.query_params import (  # get_date_end,; get_date_start,
+    get_max_results_size,
     get_page,
     get_page_size,
-    get_max_results_size,
-    get_date_start,
-    get_date_end,
 )
-from .utils.extract_json_files import extract_json_file, generate_response
+
+# from werkzeug.exceptions import BadRequest
+# import datetime
+# import json
+
 
 # import stock_collection
 
@@ -32,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 def not_found():
     logger.error("Something happend!")
-    return jsonif({"detail": "Not Found!"})
+    return jsonify({"detail": "Not Found!"})
 
 
 blueprint = PintBlueprint("stocks", __name__)
@@ -97,18 +100,18 @@ REFRESH = "refresh"
 
 all_schema = {
     "create": {"type": "string"},
-    "read": {"type": "string",},
+    "read": {"type": "string"},
     "delete": {"type": "string"},
 }
 
 
 blueprint.create_validator(
     "symbol",
-    {"type": "object", "properties": {"symbol": {"type": "string",}, **all_schema,}},
+    {"type": "object", "properties": {"symbol": {"type": "string"}, **all_schema}},
 )
 
 stock_request = blueprint.create_validator(
-    "stock", {"type": "object", "properties": {"symbol": {"type": "string",}}}
+    "stock", {"type": "object", "properties": {"symbol": {"type": "string"}}}
 )
 
 
@@ -117,9 +120,9 @@ class Stocks(Resource):
     @blueprint.response(HTTPStatus.OK, description="Stocks endpoint")
     async def get(self):
         results = []
-        size = get_page_size(request)
-        page = get_page(request)
-        max_size = get_max_results_size(size, page)
+        # size = get_page_size(request)
+        # page = get_page(request)
+        # max_size = get_max_results_size(size, page)
         stocks_path = os.path.normcase(blueprint.stocks_folder)
         stocks = os.listdir(stocks_path)
         for filename in stocks:
@@ -140,7 +143,7 @@ class Stocks(Resource):
                     }
                 )
 
-        return jsonify({"create": url_for("stocks.stocks"), "results": results,})
+        return jsonify({"create": url_for("stocks.stocks"), "results": results})
 
     @blueprint.expect(stock_request)
     @blueprint.response(HTTPStatus.OK, description="Stocks endpoint")
@@ -162,9 +165,10 @@ class Stocks(Resource):
             }
         async with aiofiles.open(json_path, mode="w", newline="") as jsonfile:
             # todo fix the result keys to be corrected.
-            # timestamp = datetime.datetime.fromisoformat(k.replace("Z", "+00:00")).strftime(
+            # timestamp = datetime.datetime.fromisoformat(
+            #    k.replace("Z", "+00:00")).strftime(
             #    "%Y-%m-%d"
-            #)
+            # )
             await jsonfile.write(result)
         return {
             "symbol": symbol,
@@ -210,8 +214,8 @@ class ActionsForStockSymbol(Resource):
 @blueprint.route("/stocks/<symbol>/historical-data")
 class HistoricalDataForSymbol(Resource):
     async def get(self, symbol):
-        date_start = get_date_start(request)
-        date_end = get_date_end(request)
+        # date_start = get_date_start(request)
+        # date_end = get_date_end(request)
         size = get_page_size(request)
         page = get_page(request)
         results = []
@@ -246,6 +250,29 @@ class HistoricalDataForSymbol(Resource):
         )
 
 
+@blueprint.route("/stocks/<symbol>/history")
+class StockHistory(Resource):
+    async def get(self, symbol):
+        stock_days = StockDay.query.order_by("date").paginate(
+            0, per_page=25, error_out=False
+        )
+        stocks = []
+        for stock_day in stock_days:
+            # stock = Stock.query.get(id=stock_day.stock_id)
+            stocks.append(
+                {
+                    # 'ticker': stock.ticker,
+                    "close": stock_day.close,
+                    "high": stock_day.high,
+                }
+            )
+        return jsonify(
+            {
+                "stocks": stocks,
+            }
+        )
+
+
 @blueprint.route("/status/stocks")
 class StockStatus(Resource):
     @blueprint.response(
@@ -253,3 +280,8 @@ class StockStatus(Resource):
     )
     async def get(self):
         return jsonify({"status": "ok"})
+
+
+@blueprint.errorhandler(404)
+async def handle_not_found(e):
+    return jsonify({"detail": "Not Found"})
