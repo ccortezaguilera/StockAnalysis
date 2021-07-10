@@ -6,10 +6,10 @@ authors = ["ccortezaguilera <10718803+ccortezaguilera@users.noreply.github.com>"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-aiohttp = "^3.6.2"
+aiohttp = "^3.7.4"
 asyncio = "^3.4.3"
 yfinance = "^0.1.54"
-fastapi = "^0.61.1"
+fastapi = "^0.65.2"
 uvicorn = "^0.12.1"
 ujson = "^4.0.1"
 Jinja2 = "^2.11.2"
